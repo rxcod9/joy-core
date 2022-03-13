@@ -26,4 +26,3 @@ if (!function_exists('isInPatterns')) {
         return false;
     }
 }
-
