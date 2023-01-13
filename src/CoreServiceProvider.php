@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Joy\Core;
 
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
@@ -26,6 +27,8 @@ class CoreServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        $this->bootBlueprintMacros();
+
         $this->registerPublishables();
 
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'joy-core');
@@ -72,6 +75,41 @@ class CoreServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__ . '/../config/core.php', 'joy-core');
 
         $this->registerCommands();
+    }
+
+    /**
+     * Boot blueprint macros.
+     *
+     * @return void
+     */
+    protected function bootBlueprintMacros(): void
+    {
+        Blueprint::macro('createdModifiedBy', function () {
+            $this->unsignedBigInteger('modified_by_id')->nullable();
+            $this->unsignedBigInteger('created_by_id')->nullable();
+        });
+
+        // Uuids
+        Blueprint::macro('createdModifiedByUuids', function () {
+            $this->uuid('modified_by_id')->nullable();
+            $this->uuid('created_by_id')->nullable();
+        });
+
+        // Assigned + CreatedBy + ModifiedBy + Timestamps + SoftDeletes [BigInt]
+        Blueprint::macro('acmts', function () {
+            $this->unsignedBigInteger('assigned_user_id')->nullable();
+            $this->createdModifiedBy();
+            $this->timestamps();
+            $this->softDeletes();
+        });
+
+        // Assigned + CreatedBy + ModifiedBy + Timestamps + SoftDeletes [Uuids]
+        Blueprint::macro('acmtsUuids', function () {
+            $this->uuid('assigned_user_id')->nullable();
+            $this->createdModifiedByUuids();
+            $this->timestamps();
+            $this->softDeletes();
+        });
     }
 
     /**
