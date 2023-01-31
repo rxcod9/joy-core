@@ -87,6 +87,9 @@ class CoreServiceProvider extends ServiceProvider
         Blueprint::macro('createdModifiedBy', function () {
             $this->unsignedBigInteger('modified_by_id')->nullable();
             $this->unsignedBigInteger('created_by_id')->nullable();
+
+            $this->foreign('created_by_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('set null');
+            $this->foreign('modified_by_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('set null');
         });
 
         // Uuids
@@ -97,15 +100,17 @@ class CoreServiceProvider extends ServiceProvider
 
         // Assigned + CreatedBy + ModifiedBy + Timestamps + SoftDeletes [BigInt]
         Blueprint::macro('acmts', function () {
-            $this->unsignedBigInteger('assigned_user_id')->nullable();
+            $this->unsignedBigInteger('assigned_to_id')->nullable();
             $this->createdModifiedBy();
             $this->timestamps();
             $this->softDeletes();
+
+            $this->foreign('assigned_to_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('set null');
         });
 
         // Assigned + CreatedBy + ModifiedBy + Timestamps + SoftDeletes [Uuids]
         Blueprint::macro('acmtsUuids', function () {
-            $this->uuid('assigned_user_id')->nullable();
+            $this->uuid('assigned_to_id')->nullable();
             $this->createdModifiedByUuids();
             $this->timestamps();
             $this->softDeletes();
